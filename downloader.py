@@ -3,8 +3,12 @@ import re
 import math
 import yt_dlp
 from typing import Dict, Any, List, Optional
+import static_ffmpeg
 
-# المجلد المخصص لحفظ الفيديوهات المؤقتة إذا لزم الأمر
+# تفعيل FFmpeg تلقائياً في البيئة لدمج الصوت والفيديو
+static_ffmpeg.add_paths()
+
+# المجلد المخصص لحفظ الفيديوهات
 DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 if not os.path.exists(DOWNLOADS_DIR):
     os.makedirs(DOWNLOADS_DIR)
@@ -39,17 +43,17 @@ def format_duration(seconds: Optional[int]) -> str:
 def is_valid_url(url: str) -> bool:
     """التحقق من صحة الرابط المدخل."""
     regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
-        r'localhost|'  # localhost
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ip
-        r'(?::\d+)?'  # optional port
+        r'^(?:http|ftp)s?://'
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
+        r'localhost|'
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+        r'(?::\d+)?'
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, url) is not None
 
 
 def extract_info(url: str) -> Dict[str, Any]:
-    """استخراج بيانات الفيديو بدون تحميله باستخدام yt-dlp."""
+    """استخراج بيانات الفيديو والجودات المتاحة مع تمييز الفيديوهات المصحوبة بصوت."""
     if not is_valid_url(url):
         raise ValueError("الرابط المدخل غير صالح. يرجى التثبت من الرابط وإعادة المحاولة.")
 
@@ -58,42 +62,35 @@ def extract_info(url: str) -> Dict[str, Any]:
         'no_warnings': True,
         'skip_download': True,
         'extract_flat': False,
-        'force_generic_extractor': False,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             
-            # في حال كانت قائمة تشغيل، نأخذ العنصر الأول
             if 'entries' in info and len(info['entries']) > 0:
                 info = info['entries'][0]
 
             formats_list: List[Dict[str, Any]] = []
-
-            # معالجة تنسيقات الجودة المتاحة
             raw_formats = info.get('formats', [])
             seen_resolutions = set()
 
             for f in raw_formats:
-                # فلترة التنسيقات غير المرغوبة
                 vcodec = f.get('vcodec', 'none')
                 acodec = f.get('acodec', 'none')
                 format_note = f.get('format_note', '')
                 ext = f.get('ext', 'mp4')
-                
-                # تخطي الملفات المتكررة أو التنسيقات غير الصالحة
                 height = f.get('height')
                 filesize = f.get('filesize') or f.get('filesize_approx')
                 
-                quality_label = f"{height}p" if height else format_note or "Audio"
-                
-                # إضافة الصوت والصورة التنسيقات الممتازة
                 is_video = vcodec != 'none'
                 is_audio = acodec != 'none'
 
+                # تصفية الصيغ الخاطئة
                 if is_video and height:
-                    key = f"{height}p_{ext}"
+                    quality_label = f"{height}p"
+                    key = f"{height}p_{ext}_{is_audio}"
+                    
                     if key not in seen_resolutions:
                         seen_resolutions.add(key)
                         formats_list.append({
@@ -107,8 +104,8 @@ def extract_info(url: str) -> Dict[str, Any]:
                             'has_audio': is_audio
                         })
 
-            # رتّب الجودات من الأعلى للأقل
-            formats_list.sort(key=lambda x: x.get('height', 0) or 0, reverse=True)
+            # ترتّب الجودات التي تحتوي على صوت وصورة في البداية، ثم حسب ارتفاع الرزلوشن
+            formats_list.sort(key=lambda x: (x.get('has_audio', False), x.get('height', 0) or 0), reverse=True)
 
             return {
                 "success": True,
@@ -119,8 +116,34 @@ def extract_info(url: str) -> Dict[str, Any]:
                 "webpage_url": info.get('webpage_url', url),
                 "extractor": info.get('extractor_key', 'Generic'),
                 "formats": formats_list,
-                "best_video_url": info.get('url'), # رابط التنزيل المباشر الأساسي إذا وجد
             }
 
     except Exception as e:
         raise RuntimeError(f"عذراً، فشل استخراج بيانات هذا الفيديو: {str(e)}")
+
+
+def download_and_merge_video(url: str, format_id: Optional[str] = None) -> str:
+    """تحميل الفيديو ودمج الصوت والصورة تلقائياً باستخدام FFmpeg وربطه بجودة واحدة."""
+    if format_id:
+        format_spec = f"{format_id}+bestaudio/bestvideo+bestaudio/best"
+    else:
+        format_spec = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+
+    out_template = os.path.join(DOWNLOADS_DIR, "%(title)s.%(ext)s")
+
+    ydl_opts = {
+        'format': format_spec,
+        'outtmpl': out_template,
+        'merge_output_format': 'mp4',
+        'quiet': True,
+        'no_warnings': True,
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info)
+        base, _ = os.path.splitext(filename)
+        merged_file = f"{base}.mp4"
+        if os.path.exists(merged_file):
+            return merged_file
+        return filename
