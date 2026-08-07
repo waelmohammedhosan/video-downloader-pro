@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Downloads folder content
+downloads/*
+!downloads/.gitkeep
+
+# IDE Settings
+.vscode/
+.idea/
+*.swp
