@@ -3,16 +3,6 @@ import re
 import math
 import yt_dlp
 from typing import Dict, Any, List, Optional
-import static_ffmpeg
-
-# تفعيل FFmpeg تلقائياً في البيئة لدمج الصوت والفيديو
-static_ffmpeg.add_paths()
-
-# المجلد المخصص لحفظ الفيديوهات
-DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
-if not os.path.exists(DOWNLOADS_DIR):
-    os.makedirs(DOWNLOADS_DIR)
-
 
 def format_bytes(size_in_bytes: Optional[int]) -> str:
     """تحويل الحجم من بايت إلى تنسيق مقروء (MB, GB, KB)."""
@@ -26,7 +16,6 @@ def format_bytes(size_in_bytes: Optional[int]) -> str:
     s = round(size_in_bytes / p, 2)
     return f"{s} {size_name[i]}"
 
-
 def format_duration(seconds: Optional[int]) -> str:
     """تحويل مدة الفيديو بالثواني إلى تنسيق HH:MM:SS."""
     if not seconds:
@@ -39,7 +28,6 @@ def format_duration(seconds: Optional[int]) -> str:
         return f"{hours:02d}:{minutes:02d}:{secs:02d}"
     return f"{minutes:02d}:{secs:02d}"
 
-
 def is_valid_url(url: str) -> bool:
     """التحقق من صحة الرابط المدخل."""
     regex = re.compile(
@@ -51,9 +39,8 @@ def is_valid_url(url: str) -> bool:
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, url) is not None
 
-
 def extract_info(url: str) -> Dict[str, Any]:
-    """استخراج بيانات الفيديو والجودات المتاحة مع تمييز الفيديوهات المصحوبة بصوت."""
+    """استخراج بيانات الفيديو وعرض الجودات المدمجة بالصوت والصورة فقط."""
     if not is_valid_url(url):
         raise ValueError("الرابط المدخل غير صالح. يرجى التثبت من الرابط وإعادة المحاولة.")
 
@@ -78,18 +65,19 @@ def extract_info(url: str) -> Dict[str, Any]:
             for f in raw_formats:
                 vcodec = f.get('vcodec', 'none')
                 acodec = f.get('acodec', 'none')
-                format_note = f.get('format_note', '')
                 ext = f.get('ext', 'mp4')
+                protocol = f.get('protocol', '')
                 height = f.get('height')
                 filesize = f.get('filesize') or f.get('filesize_approx')
                 
                 is_video = vcodec != 'none'
                 is_audio = acodec != 'none'
 
-                # تصفية الصيغ الخاطئة
-                if is_video and height:
+                # 🔥 التعديل الجذري: قبول الروابط التي تحتوي على صوت وصورة معاً فقط!
+                # وتجاهل روابط m3u8 التي تُحمل كملف نصي غير صالح للتشغيل
+                if is_video and is_audio and height and not protocol.startswith('m3u8'):
                     quality_label = f"{height}p"
-                    key = f"{height}p_{ext}_{is_audio}"
+                    key = f"{height}p_{ext}"
                     
                     if key not in seen_resolutions:
                         seen_resolutions.add(key)
@@ -101,11 +89,11 @@ def extract_info(url: str) -> Dict[str, Any]:
                             'filesize': format_bytes(filesize),
                             'url': f.get('url'),
                             'type': 'video',
-                            'has_audio': is_audio
+                            'has_audio': True
                         })
 
-            # ترتّب الجودات التي تحتوي على صوت وصورة في البداية، ثم حسب ارتفاع الرزلوشن
-            formats_list.sort(key=lambda x: (x.get('has_audio', False), x.get('height', 0) or 0), reverse=True)
+            # ترتيب الجودات من الأعلى للأقل
+            formats_list.sort(key=lambda x: x.get('height', 0) or 0, reverse=True)
 
             return {
                 "success": True,
@@ -120,30 +108,3 @@ def extract_info(url: str) -> Dict[str, Any]:
 
     except Exception as e:
         raise RuntimeError(f"عذراً، فشل استخراج بيانات هذا الفيديو: {str(e)}")
-
-
-def download_and_merge_video(url: str, format_id: Optional[str] = None) -> str:
-    """تحميل الفيديو ودمج الصوت والصورة تلقائياً باستخدام FFmpeg وربطه بجودة واحدة."""
-    if format_id:
-        format_spec = f"{format_id}+bestaudio/bestvideo+bestaudio/best"
-    else:
-        format_spec = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
-
-    out_template = os.path.join(DOWNLOADS_DIR, "%(title)s.%(ext)s")
-
-    ydl_opts = {
-        'format': format_spec,
-        'outtmpl': out_template,
-        'merge_output_format': 'mp4',
-        'quiet': True,
-        'no_warnings': True,
-    }
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info)
-        base, _ = os.path.splitext(filename)
-        merged_file = f"{base}.mp4"
-        if os.path.exists(merged_file):
-            return merged_file
-        return filename
