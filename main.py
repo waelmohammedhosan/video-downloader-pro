@@ -8,6 +8,13 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from downloader import extract_info, DOWNLOADS_DIR
+# المجلد المخصص لحفظ الفيديوهات
+DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
+if not os.path.exists(DOWNLOADS_DIR):
+    os.makedirs(DOWNLOADS_DIR)
+
+# مسار ملف الكوكيز
+COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(

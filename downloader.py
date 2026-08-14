@@ -4,6 +4,14 @@ import math
 import yt_dlp
 from typing import Dict, Any, List, Optional
 
+# المجلد المخصص لحفظ الفيديوهات
+DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
+if not os.path.exists(DOWNLOADS_DIR):
+    os.makedirs(DOWNLOADS_DIR)
+
+# مسار ملف الكوكيز
+COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
+
 def format_bytes(size_in_bytes: Optional[int]) -> str:
     """تحويل الحجم من بايت إلى تنسيق مقروء (MB, GB, KB)."""
     if not size_in_bytes:
@@ -38,8 +46,9 @@ def is_valid_url(url: str) -> bool:
         r'(?::\d+)?'
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, url) is not None
+
 def extract_info(url: str) -> Dict[str, Any]:
-    """استخراج بيانات الفيديو مع تخطي حظر يوتيوب على السيرفرات السحابية."""
+    """استخراج بيانات الفيديو بدون حظر."""
     if not is_valid_url(url):
         raise ValueError("الرابط المدخل غير صالح. يرجى التثبت من الرابط وإعادة المحاولة.")
 
@@ -48,7 +57,6 @@ def extract_info(url: str) -> Dict[str, Any]:
         'no_warnings': True,
         'skip_download': True,
         'extract_flat': False,
-        # 🔑 التمويه والتغلب على حظر البوتات من يوتيوب
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8',
@@ -59,6 +67,9 @@ def extract_info(url: str) -> Dict[str, Any]:
             }
         }
     }
+
+    if os.path.exists(COOKIES_FILE):
+        ydl_opts['cookiefile'] = COOKIES_FILE
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
