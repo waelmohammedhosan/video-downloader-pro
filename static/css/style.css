@@ -1,79 +1,75 @@
 /* ==========================================================================
-   تحديث تنسيق الخلفية والواجهة - Video Downloader Pro
+   Red AI Glassmorphism Theme - Video Downloader Pro
    ========================================================================== */
 
-/* 1️⃣ خلفية الموقع الرئيسية (تدرج لوني عصري وداكن مريح للعين) */
+/* 1️⃣ خلفية الذكاء الاصطناعي الحمراء العميقة المتدرجة */
 body {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    background: radial-gradient(circle at 50% -20%, #991b1b 0%, #450a0a 45%, #0f0303 90%) !important;
     background-attachment: fixed !important;
     min-height: 100vh;
-    color: #f8fafc;
+    color: #f8fafc !important;
     font-family: 'Tajawal', sans-serif;
     margin: 0;
     padding: 0;
 }
 
-/* 💡 إذا أردت استخدام صورة خلفية مخصصة بدلاً من التدرج، فك التعليق عن الأسطر التالية: */
-/*
-body {
-    background: url('../images/bg.jpg') no-repeat center center fixed !important;
-    background-size: cover !important;
-}
-*/
-
-/* 2️⃣ تأثير الزجاج الضبابي (Glassmorphism) للكروت لتظهر الخلفية من خلفها بجمالية */
+/* 2️⃣ تأثير الزجاج الضبابي للكروت بلمسة حمراء متوهجة */
 .card, 
 .hero-section,
 .container-glass {
-    background: rgba(30, 41, 59, 0.7) !important;
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+    background: rgba(24, 9, 12, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 40px rgba(185, 28, 28, 0.25) !important;
 }
 
-/* 3️⃣ تحسين حقل إدخال الرابط (Input Bar) */
+/* 3️⃣ صندوق البحث والمستطيلات */
 .form-control {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(15, 3, 5, 0.7) !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
     color: #ffffff !important;
     border-radius: 12px !important;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
     transition: all 0.3s ease;
 }
 
 .form-control::placeholder {
-    color: #94a3b8 !important;
+    color: #fca5a5 !important;
+    opacity: 0.7;
 }
 
 .form-control:focus {
-    background: rgba(15, 23, 42, 0.85) !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
+    background: rgba(20, 4, 6, 0.9) !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
     color: #ffffff !important;
 }
 
-/* 4️⃣ تحسين الأزرار وأيقونات المنصات */
+/* 4️⃣ الأزرار باللون الأحمر المتدرج الفخم */
 .btn-primary {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-    border: none !important;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+    border: 1px solid rgba(254, 226, 226, 0.2) !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4) !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease !important;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px 0 rgba(37, 99, 235, 0.55) !important;
+    box-shadow: 0 6px 25px rgba(220, 38, 38, 0.7) !important;
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
 }
 
-/* تأثير التفاعل مع أيقونات المنصات المدعومة */
-.platform-icon, .social-icon {
-    transition: transform 0.3s ease, filter 0.3s ease;
+/* النصوص والألفاظ */
+h1, h2, h3, h4, .navbar-brand {
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.platform-icon:hover, .social-icon:hover {
-    transform: translateY(-5px) scale(1.1);
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
+/* إخفاء خلفيات البوتستراب البيضاء القديمة */
+.bg-light, .bg-white {
+    background: transparent !important;
 }
