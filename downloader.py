@@ -4,14 +4,9 @@ import math
 import yt_dlp
 from typing import Dict, Any, List, Optional
 
-DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
-if not os.path.exists(DOWNLOADS_DIR):
-    os.makedirs(DOWNLOADS_DIR)
-
 COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
 
 def format_bytes(size_in_bytes: Optional[int]) -> str:
-    """تحويل الحجم من بايت إلى تنسيق مقروء (MB, GB, KB)."""
     if not size_in_bytes or not isinstance(size_in_bytes, (int, float)) or size_in_bytes <= 0:
         return "حجم غير محدد"
     size_name = ("B", "KB", "MB", "GB", "TB")
@@ -24,7 +19,6 @@ def format_bytes(size_in_bytes: Optional[int]) -> str:
         return "حجم غير محدد"
 
 def format_duration(seconds: Optional[int]) -> str:
-    """تحويل مدة الفيديو بالثواني إلى تنسيق HH:MM:SS."""
     if not seconds or not isinstance(seconds, (int, float)):
         return "غير معروف"
     try:
@@ -39,20 +33,11 @@ def format_duration(seconds: Optional[int]) -> str:
         return "غير معروف"
 
 def is_valid_url(url: str) -> bool:
-    """التحقق من صحة الرابط المدخل."""
     if not url or not isinstance(url, str):
         return False
-    regex = re.compile(
-        r'^(?:http|ftp)s?://'
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
-        r'localhost|'
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-        r'(?::\d+)?'
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    return re.match(regex, url) is not None
+    return url.startswith("http://") or url.startswith("https://")
 
 def extract_info(url: str) -> Dict[str, Any]:
-    """استخراج بيانات الفيديو مع حماية كاملة من الأخطاء."""
     if not is_valid_url(url):
         raise ValueError("الرابط المدخل غير صالح. يرجى التأكد من الرابط وإعادة المحاولة.")
 
@@ -60,14 +45,14 @@ def extract_info(url: str) -> Dict[str, Any]:
         'quiet': True,
         'no_warnings': True,
         'skip_download': True,
-        'extract_flat': False,
+        'format': 'best',
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
         },
         'extractor_args': {
             'youtube': {
-                'player_client': ['tv_embedded', 'ios', 'mweb', 'android'],
+                'player_client': ['ios', 'android', 'mweb'],
             }
         }
     }
@@ -80,7 +65,7 @@ def extract_info(url: str) -> Dict[str, Any]:
             info = ydl.extract_info(url, download=False)
             
             if not info:
-                raise RuntimeError("تعذر العثور على معلومات هذا الفيديو.")
+                raise RuntimeError("تعذر جلب معلومات الفيديو.")
 
             if 'entries' in info and isinstance(info['entries'], list) and len(info['entries']) > 0:
                 info = info['entries'][0]
@@ -120,10 +105,9 @@ def extract_info(url: str) -> Dict[str, Any]:
                             'type': 'فيديو مع صوت' if is_audio else 'فيديو فقط'
                         })
 
-            # ترتيب الجودات من الأعلى للأدنى
             formats_list.sort(key=lambda x: x.get('height', 0) or 0, reverse=True)
 
-            # إضافة خيار صوت فقط إذا توفر
+            # إضافة خيار صوت فقط إذا وجد
             audio_format = next((f for f in raw_formats if isinstance(f, dict) and f.get('acodec') != 'none' and f.get('vcodec') == 'none' and f.get('url')), None)
             if audio_format:
                 formats_list.append({
@@ -136,27 +120,29 @@ def extract_info(url: str) -> Dict[str, Any]:
                     'type': 'صوت فقط'
                 })
 
-            # رابط المشغل
             embed_url = info.get('embed_url')
             video_id = info.get('id')
             if not embed_url and video_id and 'youtube' in str(info.get('extractor', '')).lower():
                 embed_url = f"https://www.youtube.com/embed/{video_id}"
 
-            stream_url = formats_list[0]['url'] if formats_list else ''
+            stream_url = formats_list[0]['url'] if formats_list else (info.get('url') or '')
 
             return {
                 "success": True,
                 "title": info.get('title') or 'فيديو بدون عنوان',
-                "uploader": info.get('uploader') or info.get('channel') or info.get('uploader_id') or "غير معروف",
+                "uploader": info.get('uploader') or info.get('channel') or "غير معروف",
                 "duration": format_duration(info.get('duration')),
-                "thumbnail": info.get('thumbnail') or (info.get('thumbnails')[-1]['url'] if info.get('thumbnails') and len(info['thumbnails']) > 0 else ''),
+                "thumbnail": info.get('thumbnail') or '',
                 "webpage_url": info.get('webpage_url', url),
                 "embed_url": embed_url,
                 "stream_url": stream_url,
                 "formats": formats_list,
             }
 
-    except ValueError as ve:
-        raise ve
+    except yt_dlp.utils.DownloadError as de:
+        clean_err = str(de)
+        if "Sign in to confirm" in clean_err or "bot" in clean_err:
+            raise RuntimeError("يوتيوب يتطلب تأكيد الحساب حالياً لهذا الفيديو. يرجى تجربة رابط آخر.")
+        raise RuntimeError(f"خطأ أثناء جلب الفيديو: {clean_err}")
     except Exception as e:
-        raise RuntimeError(f"خطأ أثناء تحليل الفيديو: {str(e)}")
+        raise RuntimeError(f"حدث خطأ أثناء معالجة الرابط: {str(e)}")

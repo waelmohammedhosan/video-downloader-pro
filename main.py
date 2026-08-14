@@ -13,26 +13,15 @@ def extract():
     try:
         data = request.get_json(silent=True)
         if not data or 'url' not in data or not str(data['url']).strip():
-            return jsonify({'success': False, 'error': 'يرجى تقديم رابط فيديو صالح.'}), 400
+            return jsonify({'success': False, 'error': 'يرجى تقديم رابط فيديو صالح.'}), 200
 
         url = str(data['url']).strip()
         result = extract_info(url)
-        return jsonify(result)
+        return jsonify(result), 200
 
-    except ValueError as ve:
-        return jsonify({'success': False, 'error': str(ve)}), 400
-    except RuntimeError as re:
-        return jsonify({'success': False, 'error': str(re)}), 400
     except Exception as e:
-        return jsonify({'success': False, 'error': f"عذراً، حدث خطأ أثناء معالجة الطلب: {str(e)}"}), 500
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({'success': False, 'error': 'حدث خطأ داخلي في السيرفر. يرجى المحاولة لاحقاً.'}), 500
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return jsonify({'success': False, 'error': 'الصفحة المطلوبة غير موجودة.'}), 404
+        # إرجاع الخطأ بتنسيق JSON واضح دون تحطيم السيرفر بـ 500
+        return jsonify({'success': False, 'error': str(e)}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
