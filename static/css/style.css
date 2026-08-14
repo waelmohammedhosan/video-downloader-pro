@@ -2,9 +2,9 @@
    Red Rose Theme - Video Downloader Pro
    ========================================================================== */
 
-/* 1️⃣ خلفية صورة الوردة الحمراء مع طبقة تظليل حمراء داكنة للقراءة بوضوح */
+/* 1️⃣ خلفية صورة الوردة الحمراء مع طبقة تظليل داكنة */
 body {
-    background: linear-gradient(rgba(20, 4, 6, 0.65), rgba(15, 3, 5, 0.85)), 
+    background: linear-gradient(rgba(20, 4, 6, 0.70), rgba(15, 3, 5, 0.88)), 
                 url('https://png.pngtree.com/thumb_back/fh260/background/20241024/pngtree-red-rose-on-the-background-for-valentines-day-romantic-valentine-s-image_16432511.jpg') 
                 no-repeat center center fixed !important;
     background-size: cover !important;
@@ -15,7 +15,29 @@ body {
     padding: 0;
 }
 
-/* 2️⃣ تأثير الزجاج الضبابي الشفاف للكروت بلمسة متوهجة */
+/* 2️⃣ تحويل جميع الروابط والقوائم العلويّة والسفليّة للون الأبيض */
+a, 
+.nav-link, 
+.navbar-nav .nav-link, 
+header a, 
+footer a, 
+.text-muted,
+.text-dark {
+    color: #ffffff !important;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+}
+
+/* تأثير جميل عند الوقوف بالماوس على الروابط */
+a:hover, 
+.nav-link:hover, 
+footer a:hover {
+    color: #fca5a5 !important; /* أحمر ناعم فاتح عند التمرير */
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8) !important;
+}
+
+/* 3️⃣ كروت الزجاج الضبابي */
 .card, 
 .hero-section,
 .container-glass {
@@ -27,7 +49,7 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* 3️⃣ حقل إدخال الرابط */
+/* 4️⃣ صندوق أدخل الرابط */
 .form-control {
     background: rgba(15, 3, 5, 0.75) !important;
     border: 1px solid rgba(239, 68, 68, 0.5) !important;
@@ -49,7 +71,7 @@ body {
     color: #ffffff !important;
 }
 
-/* 4️⃣ الأزرار */
+/* 5️⃣ الأزرار */
 .btn-primary {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
     border: 1px solid rgba(254, 226, 226, 0.3) !important;
@@ -65,12 +87,12 @@ body {
     background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
 }
 
-/* إخفاء خلفيات البوتستراب البيضاء القديمة */
+/* إلغاء أي خلفيات بيضاء متبقية من Bootstrap */
 .bg-light, .bg-white {
     background: transparent !important;
 }
 
-h1, h2, h3, h4, .navbar-brand, p {
+h1, h2, h3, h4, h5, h6, .navbar-brand, p, span {
     color: #ffffff !important;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
