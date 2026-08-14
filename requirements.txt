@@ -6,3 +6,7 @@ python-multipart>=0.0.9
 slowapi>=0.1.9
 pydantic>=2.6.4
 static-ffmpeg
+flask
+gunicorn
+yt-dlp
+requests
