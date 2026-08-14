@@ -1,115 +1,79 @@
-:root {
-    --bg-primary: #f8fafc;
-    --bg-card: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --accent: #6366f1;
-    --accent-hover: #4f46e5;
-    --border-color: #e2e8f0;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
+/* ==========================================================================
+   تحديث تنسيق الخلفية والواجهة - Video Downloader Pro
+   ========================================================================== */
 
-[data-theme="dark"] {
-    --bg-primary: #0f172a;
-    --bg-card: #1e293b;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent: #818cf8;
-    --accent-hover: #6366f1;
-    --border-color: #334155;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
-    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-}
-
+/* 1️⃣ خلفية الموقع الرئيسية (تدرج لوني عصري وداكن مريح للعين) */
 body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    background-attachment: fixed !important;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    color: #f8fafc;
+    font-family: 'Tajawal', sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-main {
-    flex: 1;
+/* 💡 إذا أردت استخدام صورة خلفية مخصصة بدلاً من التدرج، فك التعليق عن الأسطر التالية: */
+/*
+body {
+    background: url('../images/bg.jpg') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+*/
+
+/* 2️⃣ تأثير الزجاج الضبابي (Glassmorphism) للكروت لتظهر الخلفية من خلفها بجمالية */
+.card, 
+.hero-section,
+.container-glass {
+    background: rgba(30, 41, 59, 0.7) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
 }
 
-.card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
+/* 3️⃣ تحسين حقل إدخال الرابط (Input Bar) */
+.form-control {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(6px);
     transition: all 0.3s ease;
 }
 
-.card:hover {
-    box-shadow: var(--shadow-lg);
+.form-control::placeholder {
+    color: #94a3b8 !important;
 }
 
+.form-control:focus {
+    background: rgba(15, 23, 42, 0.85) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
+    color: #ffffff !important;
+}
+
+/* 4️⃣ تحسين الأزرار وأيقونات المنصات */
 .btn-primary {
-    background-color: var(--accent);
-    border-color: var(--accent);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 .btn-primary:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px 0 rgba(37, 99, 235, 0.55) !important;
 }
 
-.text-secondary-custom {
-    color: var(--text-secondary);
+/* تأثير التفاعل مع أيقونات المنصات المدعومة */
+.platform-icon, .social-icon {
+    transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-.navbar {
-    background-color: var(--bg-card) !important;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.footer {
-    background-color: var(--bg-card);
-    border-top: 1px solid var(--border-color);
-}
-
-.platform-badge {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    transition: transform 0.2s;
-}
-
-.platform-badge:hover {
-    transform: translateY(-3px);
-}
-
-/* RTL Adjustments */
-[dir="rtl"] .me-2 {
-    margin-left: 0.5rem !important;
-    margin-right: 0 !important;
-}
-
-[dir="rtl"] .ms-auto {
-    margin-right: auto !important;
-    margin-left: 0 !important;
-}
-
-/* Spinner Loader Overlay */
-#loadingSpinner {
-    display: none;
-}
-
-.toast-container {
-    z-index: 1090;
-}
-
-body {
-    background: linear-gradient(135deg, #f4f6f9 0%, #e2e8f0 50%, #ebf8ff 100%) !important;
-    min-height: 100vh;
-    font-family: 'Tajawal', sans-serif;
+.platform-icon:hover, .social-icon:hover {
+    transform: translateY(-5px) scale(1.1);
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
 }
