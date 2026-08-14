@@ -107,3 +107,9 @@ main {
 .toast-container {
     z-index: 1090;
 }
+
+body {
+    background: linear-gradient(135deg, #f4f6f9 0%, #e2e8f0 50%, #ebf8ff 100%) !important;
+    min-height: 100vh;
+    font-family: 'Tajawal', sans-serif;
+}

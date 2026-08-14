@@ -38,9 +38,8 @@ def is_valid_url(url: str) -> bool:
         r'(?::\d+)?'
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, url) is not None
-
 def extract_info(url: str) -> Dict[str, Any]:
-    """استخراج بيانات الفيديو وعرض الجودات المدمجة بالصوت والصورة فقط."""
+    """استخراج بيانات الفيديو مع تخطي حظر يوتيوب على السيرفرات السحابية."""
     if not is_valid_url(url):
         raise ValueError("الرابط المدخل غير صالح. يرجى التثبت من الرابط وإعادة المحاولة.")
 
@@ -49,6 +48,16 @@ def extract_info(url: str) -> Dict[str, Any]:
         'no_warnings': True,
         'skip_download': True,
         'extract_flat': False,
+        # 🔑 التمويه والتغلب على حظر البوتات من يوتيوب
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8',
+        },
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios', 'android', 'mweb'],
+            }
+        }
     }
 
     try:
@@ -73,8 +82,6 @@ def extract_info(url: str) -> Dict[str, Any]:
                 is_video = vcodec != 'none'
                 is_audio = acodec != 'none'
 
-                # 🔥 التعديل الجذري: قبول الروابط التي تحتوي على صوت وصورة معاً فقط!
-                # وتجاهل روابط m3u8 التي تُحمل كملف نصي غير صالح للتشغيل
                 if is_video and is_audio and height and not protocol.startswith('m3u8'):
                     quality_label = f"{height}p"
                     key = f"{height}p_{ext}"
@@ -92,7 +99,6 @@ def extract_info(url: str) -> Dict[str, Any]:
                             'has_audio': True
                         })
 
-            # ترتيب الجودات من الأعلى للأقل
             formats_list.sort(key=lambda x: x.get('height', 0) or 0, reverse=True)
 
             return {
