@@ -1,94 +1,339 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader Pro - برنامج تحميل الفيديوهات</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Font (Tajawal) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
 
-{% block content %}
-<div class="container py-4">
-    <!-- Hero Header -->
-    <div class="text-center mb-5" data-aos="fade-down">
-        <h1 class="fw-bold display-5 mb-3" data-ar="حمل الفيديوهات من أي منصة مجاناً" data-en="Download Videos From Any Platform Easily">
-            حمل الفيديوهات من أي منصة مجاناً
-        </h1>
-        <p class="lead text-secondary-custom fs-6" data-ar="يدعم YouTube, TikTok, Instagram, Facebook, X والعديد من المنصات الأخرى." data-en="Supports YouTube, TikTok, Instagram, Facebook, X, and many more.">
-            يدعم YouTube, TikTok, Instagram, Facebook, X والعديد من المنصات الأخرى.
-        </p>
-    </div>
-
-    <!-- Input Form Section -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-9 col-lg-8" data-aos="zoom-in">
-            <div class="card p-3 p-md-4 shadow-sm border-0">
-                <form id="downloaderForm">
-                    <div class="input-group input-group-lg">
-                        <input type="url" id="videoUrl" class="form-control" placeholder="أدخل رابط الفيديو هنا..." required autocomplete="off">
-                        <button class="btn btn-outline-secondary" type="button" id="pasteBtn" title="لصق">
-                            <i class="fas fa-paste"></i>
-                        </button>
-                        <button class="btn btn-primary px-4" type="submit">
-                            <i class="fas fa-search me-1"></i> <span data-ar="تحليل" data-en="Analyze">تحليل</span>
-                        </button>
-                    </div>
-                </form>
+    <!-- 🌐 القائمة العلوية (Navbar) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="/">
+                <i class="bi bi-play-btn-fill text-danger me-2"></i>Video Downloader Pro
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-white" href="/">الرئيسية</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#about" data-bs-toggle="modal" data-bs-target="#aboutModal">من نحن</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#privacy" data-bs-toggle="modal" data-bs-target="#privacyModal">سياسة الخصوصية</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#terms" data-bs-toggle="modal" data-bs-target="#termsModal">شروط الاستخدام</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#contact" data-bs-toggle="modal" data-bs-target="#contactModal">اتصل بنا</a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <!-- Loading State Spinner -->
-    <div id="loadingSpinner" class="text-center my-5">
-        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-        <p class="mt-3 text-secondary-custom fw-bold" data-ar="جاري استخراج بيانات الفيديو..." data-en="Fetching video information...">
-            جاري استخراج بيانات الفيديو...
-        </p>
-    </div>
+    <!-- 🚀 القسم الرئيسي (Hero Section) -->
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                
+                <h1 class="display-4 fw-extrabold mb-3 text-white">حمل الفيديوهات من أي منصة مجاناً</h1>
+                <p class="fs-5 text-white-50 mb-5">يدعم YouTube, TikTok, Instagram, Facebook, X والعديد من المنصات الأخرى.</p>
 
-    <!-- Progress Bar (Hidden by default) -->
-    <div id="progressBarContainer" class="row justify-content-center my-3" style="display: none;">
-        <div class="col-md-8">
-            <div class="progress" style="height: 20px;">
-                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;"></div>
+                <!-- صندوق البحث وإدخال الرابط -->
+                <div class="card p-3 container-glass shadow-lg mb-4">
+                    <form id="extract-form" onsubmit="handleAnalyze(event)">
+                        <div class="input-group input-group-lg">
+                            <input type="url" id="url-input" class="form-control" placeholder="ضع رابط الفيديو هنا..." required autocomplete="off">
+                            <button type="button" class="btn btn-outline-light px-3" onclick="pasteFromClipboard()" title="لصق الرابط">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                            <button type="submit" id="submit-btn" class="btn btn-primary px-4 fw-bold">
+                                <span id="btn-text"><i class="bi bi-search me-1"></i> تحليل</span>
+                                <span id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- تنبيه الأخطاء -->
+                <div id="error-alert" class="alert alert-danger alert-dismissible fade show d-none text-start" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="error-message"></span>
+                    <button type="button" class="btn-close" onclick="hideError()"></button>
+                </div>
+
+                <!-- 🎬 كارت نتيجة الفيديو والخيارات (المشغل + الاختيارات) -->
+                <div id="result-card" class="card p-4 text-start container-glass text-white d-none mt-4">
+                    <div class="row g-4 align-items-center">
+                        
+                        <!-- 1️⃣ مشغل الفيديو المباشر (Preview Player) -->
+                        <div class="col-lg-6">
+                            <div class="ratio ratio-16x9 rounded overflow-hidden shadow-lg border border-danger">
+                                <iframe id="video-embed" src="" allowfullscreen class="w-100 h-100 d-none" frameborder="0"></iframe>
+                                <video id="video-player" controls class="w-100 h-100 d-none">
+                                    متصفحك لا يدعم تشغيل هذا الفيديو مباشرة.
+                                </video>
+                                <img id="video-thumb" src="" alt="Thumbnail" class="w-100 h-100 object-fit-cover d-none">
+                            </div>
+                        </div>
+
+                        <!-- 2️⃣ التفاصيل وتحديد الدقة والصيغة -->
+                        <div class="col-lg-6">
+                            <h4 id="video-title" class="fw-bold mb-2 text-white">عنوان الفيديو</h4>
+                            <p class="text-white-50 mb-3 fs-6">
+                                <i class="bi bi-person-circle text-danger me-1"></i> <span id="video-uploader">القناة</span> | 
+                                <i class="bi bi-clock-history text-danger me-1 ms-2"></i> <span id="video-duration">المدة</span>
+                            </p>
+
+                            <hr class="border-danger opacity-50">
+
+                            <!-- قائمة اختيار الدقة والصيغة -->
+                            <div class="mb-3">
+                                <label for="format-select" class="form-label fw-bold text-white">
+                                    <i class="bi bi-sliders me-1 text-danger"></i> اختر الدقة وصيغة التحميل:
+                                </label>
+                                <select id="format-select" class="form-select bg-dark text-white border-danger py-2 fs-6">
+                                    <!-- يتم ملؤها بالجافاسكريبت -->
+                                </select>
+                            </div>
+
+                            <!-- زر التحميل المباشر -->
+                            <a id="download-btn" href="#" target="_blank" download class="btn btn-primary btn-lg w-100 fw-bold shadow-lg mt-2 py-3">
+                                <i class="bi bi-download me-2"></i> تنزيل الفيديو الآن
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 📱 المنصات المدعومة -->
+                <div class="mt-5 pt-3">
+                    <h5 class="text-white-50 mb-4">المنصات المدعومة</h5>
+                    <div class="d-flex justify-content-center flex-wrap gap-4 fs-2 text-white">
+                        <i class="bi bi-youtube text-white platform-icon" title="YouTube"></i>
+                        <i class="bi bi-tiktok text-white platform-icon" title="TikTok"></i>
+                        <i class="bi bi-instagram text-white platform-icon" title="Instagram"></i>
+                        <i class="bi bi-facebook text-white platform-icon" title="Facebook"></i>
+                        <i class="bi bi-twitter-x text-white platform-icon" title="X"></i>
+                        <i class="bi bi-vimeo text-white platform-icon" title="Vimeo"></i>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Video Analysis Result Card -->
-    <div id="resultSection" class="row justify-content-center my-4" style="display: none;" data-aos="fade-up">
-        <div class="col-md-10 col-lg-8">
-            <div class="card p-4">
-                <div class="row g-4 align-items-center">
-                    <div class="col-md-5 text-center">
-                        <img id="videoThumbnail" src="" class="img-fluid rounded shadow-sm" alt="Thumbnail">
-                    </div>
-                    <div class="col-md-7">
-                        <span id="videoPlatform" class="badge bg-danger mb-2">Platform</span>
-                        <h4 id="videoTitle" class="fw-bold text-truncate mb-2">Video Title</h4>
-                        <p class="mb-1 text-secondary-custom small">
-                            <i class="fas fa-user me-1"></i> <span id="videoAuthor">Channel</span>
-                        </p>
-                        <p class="mb-3 text-secondary-custom small">
-                            <i class="fas fa-clock me-1"></i> <span id="videoDuration">00:00</span>
-                        </p>
-
-                        <h6 class="fw-bold mb-2" data-ar="خيارات التنزيل المتاحة:" data-en="Available Download Options:">خيارات التنزيل المتاحة:</h6>
-                        <div id="formatsContainer" class="d-flex flex-wrap gap-2"></div>
-                    </div>
+    <!-- 📜 النوافذ المنبثقة (Modals) للروابط العلوية -->
+    
+    <!-- Modal: من نحن -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold">من نحن</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    موقع Video Downloader Pro هو أداة متطورة وسريعة تمكنك من تحميل الفيديوهات والمقاطع الصوتية من مختلف منصات التواصل الاجتماعي بأعلى جودة وبشكل مجاني تماماً دون الحاجة لتثبيت أي برامج.
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Supported Platforms Grid -->
-    <div class="mt-5 text-center" data-aos="fade-up">
-        <h5 class="fw-bold mb-4 text-secondary-custom" data-ar="المنصات المدعومة" data-en="Supported Platforms">المنصات المدعومة</h5>
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-            <div class="platform-badge text-danger" title="YouTube"><i class="fab fa-youtube"></i></div>
-            <div class="platform-badge text-dark" title="TikTok"><i class="fab fa-tiktok"></i></div>
-            <div class="platform-badge text-warning" title="Instagram"><i class="fab fa-instagram"></i></div>
-            <div class="platform-badge text-primary" title="Facebook"><i class="fab fa-facebook"></i></div>
-            <div class="platform-badge text-info" title="X (Twitter)"><i class="fab fa-x-twitter"></i></div>
-            <div class="platform-badge text-danger" title="Pinterest"><i class="fab fa-pinterest"></i></div>
-            <div class="platform-badge text-info" title="Vimeo"><i class="fab fa-vimeo-v"></i></div>
-            <div class="platform-badge text-primary" title="Dailymotion"><i class="fas fa-video"></i></div>
-            <div class="platform-badge text-purple" title="Twitch"><i class="fab fa-twitch"></i></div>
-            <div class="platform-badge text-warning" title="Reddit"><i class="fab fa-reddit"></i></div>
+    <!-- Modal: سياسة الخصوصية -->
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold">سياسة الخصوصية</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    نحن نحترم خصوصيتك تماماً. الموقع لا يقوم بحفظ أي سجلات لروابط الفيديوهات التي تقوم بتحليلها أو تحميلها، ولا نجمع أي بيانات شخصية من المستخدمين.
+                </div>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <!-- Modal: شروط الاستخدام -->
+    <div class="modal fade" id="termsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold">شروط الاستخدام</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    يرجى استخدام هذه الخدمة للأغراض الشخصية والقانونية فقط. يلتزم المستخدم بعدم استخدام الخدمة لتنزيل أي محتوى ينتهك حقوق الملكية الفكرية أو القوانين المحلية.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: اتصل بنا -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold">اتصل بنا</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-3">إذا كان لديك أي استفسار أو اقتراح، يمكن التواصل معنا مباشرة عبر البريد الإلكتروني:</p>
+                    <a href="mailto:support@videodownloader.pro" class="btn btn-outline-danger fw-bold">
+                        <i class="bi bi-envelope-fill me-2"></i> support@videodownloader.pro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔻 الفوتر (Footer) -->
+    <footer class="text-center py-4 text-white-50 mt-auto">
+        <div class="container">
+            <p class="mb-0">© 2026 Video Downloader Pro. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ⚡ JavaScript التفاعلي للتحليل والتشغيل والتحميل -->
+    <script>
+        // دالة لصق الرابط من الحافظة
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('url-input').value = text;
+            } catch (err) {
+                alert('يرجى السماح بصلاحية اللصق أو إدخال الرابط يدوياً.');
+            }
+        }
+
+        function hideError() {
+            document.getElementById('error-alert').classList.add('d-none');
+        }
+
+        function showError(msg) {
+            const alertBox = document.getElementById('error-alert');
+            document.getElementById('error-message').innerText = msg;
+            alertBox.classList.remove('d-none');
+        }
+
+        // دالة معالجة طلب تحليل الرابط
+        async function handleAnalyze(e) {
+            e.preventDefault();
+            hideError();
+
+            const urlInput = document.getElementById('url-input').value.trim();
+            if (!urlInput) return;
+
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const resultCard = document.getElementById('result-card');
+
+            // تفعيل حالة التحميل
+            submitBtn.disabled = true;
+            btnText.classList.add('d-none');
+            btnSpinner.classList.remove('d-none');
+            resultCard.classList.add('d-none');
+
+            try {
+                const response = await fetch('/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'حدث خطأ أثناء جلب بيانات الفيديو. يرجى التأكد من الرابط.');
+                }
+
+                // عرض البيانات والنتيجة
+                displayResult(data);
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                submitBtn.disabled = false;
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+            }
+        }
+
+        // دالة عرض نتيجة الفيديو في المشغل والقائمة
+        function displayResult(data) {
+            document.getElementById('video-title').innerText = data.title;
+            document.getElementById('video-uploader').innerText = data.uploader;
+            document.getElementById('video-duration').innerText = data.duration;
+
+            const embedIframe = document.getElementById('video-embed');
+            const videoPlayer = document.getElementById('video-player');
+            const videoThumb = document.getElementById('video-thumb');
+
+            // إخفاء الكل أولاً
+            embedIframe.classList.add('d-none');
+            videoPlayer.classList.add('d-none');
+            videoThumb.classList.add('d-none');
+
+            // تشغيل الفيديو حسب المتاح
+            if (data.embed_url) {
+                embedIframe.src = data.embed_url;
+                embedIframe.classList.remove('d-none');
+            } else if (data.stream_url) {
+                videoPlayer.src = data.stream_url;
+                videoPlayer.classList.remove('d-none');
+            } else if (data.thumbnail) {
+                videoThumb.src = data.thumbnail;
+                videoThumb.classList.remove('d-none');
+            }
+
+            // ملء قائمة الاختيارات للدقة والصيغ
+            const selectBox = document.getElementById('format-select');
+            selectBox.innerHTML = '';
+
+            if (data.formats && data.formats.length > 0) {
+                data.formats.forEach((fmt) => {
+                    const opt = document.createElement('option');
+                    opt.value = fmt.url;
+                    opt.innerText = `🎬 ${fmt.quality} | الصيغة: ${fmt.ext} | الحجم: (${fmt.filesize})`;
+                    selectBox.appendChild(opt);
+                });
+
+                // ضبط زر التحميل للرابط الأول
+                const downloadBtn = document.getElementById('download-btn');
+                downloadBtn.href = data.formats[0].url;
+
+                // تحديث رابط التحميل عند تغيير الاختيار من القائمة
+                selectBox.onchange = function () {
+                    downloadBtn.href = this.value;
+                };
+            }
+
+            // إظهار كارت النتيجة
+            document.getElementById('result-card').classList.remove('d-none');
+            
+            // التمرير الناعم للنتيجة
+            document.getElementById('result-card').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
