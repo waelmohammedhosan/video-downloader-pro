@@ -63,7 +63,7 @@ def extract_info(url: str) -> Dict[str, Any]:
         },
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'ios', 'mweb', 'web'],
+                'player_client': ['tv_embedded', 'ios', 'mweb', 'android'],
             }
         }
     }

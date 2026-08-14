@@ -1,34 +1,36 @@
 /* ==========================================================================
-   Red AI Glassmorphism Theme - Video Downloader Pro
+   Red Rose Theme - Video Downloader Pro
    ========================================================================== */
 
-/* 1️⃣ خلفية الذكاء الاصطناعي الحمراء العميقة المتدرجة */
+/* 1️⃣ خلفية صورة الوردة الحمراء مع طبقة تظليل حمراء داكنة للقراءة بوضوح */
 body {
-    background: radial-gradient(circle at 50% -20%, #991b1b 0%, #450a0a 45%, #0f0303 90%) !important;
-    background-attachment: fixed !important;
+    background: linear-gradient(rgba(20, 4, 6, 0.65), rgba(15, 3, 5, 0.85)), 
+                url('https://png.pngtree.com/thumb_back/fh260/background/20241024/pngtree-red-rose-on-the-background-for-valentines-day-romantic-valentine-s-image_16432511.jpg') 
+                no-repeat center center fixed !important;
+    background-size: cover !important;
     min-height: 100vh;
-    color: #f8fafc !important;
+    color: #ffffff !important;
     font-family: 'Tajawal', sans-serif;
     margin: 0;
     padding: 0;
 }
 
-/* 2️⃣ تأثير الزجاج الضبابي للكروت بلمسة حمراء متوهجة */
+/* 2️⃣ تأثير الزجاج الضبابي الشفاف للكروت بلمسة متوهجة */
 .card, 
 .hero-section,
 .container-glass {
-    background: rgba(24, 9, 12, 0.75) !important;
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    background: rgba(24, 9, 12, 0.65) !important;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
     border-radius: 20px !important;
-    box-shadow: 0 10px 40px rgba(185, 28, 28, 0.25) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* 3️⃣ صندوق البحث والمستطيلات */
+/* 3️⃣ حقل إدخال الرابط */
 .form-control {
-    background: rgba(15, 3, 5, 0.7) !important;
-    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    background: rgba(15, 3, 5, 0.75) !important;
+    border: 1px solid rgba(239, 68, 68, 0.5) !important;
     color: #ffffff !important;
     border-radius: 12px !important;
     backdrop-filter: blur(8px);
@@ -37,39 +39,38 @@ body {
 
 .form-control::placeholder {
     color: #fca5a5 !important;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .form-control:focus {
-    background: rgba(20, 4, 6, 0.9) !important;
+    background: rgba(20, 4, 6, 0.95) !important;
     border-color: #ef4444 !important;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.7) !important;
     color: #ffffff !important;
 }
 
-/* 4️⃣ الأزرار باللون الأحمر المتدرج الفخم */
+/* 4️⃣ الأزرار */
 .btn-primary {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
-    border: 1px solid rgba(254, 226, 226, 0.2) !important;
+    border: 1px solid rgba(254, 226, 226, 0.3) !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4) !important;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5) !important;
     color: #ffffff !important;
     transition: all 0.3s ease !important;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(220, 38, 38, 0.7) !important;
+    box-shadow: 0 6px 25px rgba(220, 38, 38, 0.8) !important;
     background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
-}
-
-/* النصوص والألفاظ */
-h1, h2, h3, h4, .navbar-brand {
-    color: #ffffff !important;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* إخفاء خلفيات البوتستراب البيضاء القديمة */
 .bg-light, .bg-white {
     background: transparent !important;
+}
+
+h1, h2, h3, h4, .navbar-brand, p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
